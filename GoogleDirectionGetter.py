@@ -1,6 +1,7 @@
 import googlemaps
 from datetime import datetime
 import json
+import PolylineDecoder as dc
 
 gmaps = googlemaps.Client(key='AIzaSyAtNbR9t2Dxv87jpBHpWoaEZdvmmUmlf_A')
 
@@ -20,6 +21,9 @@ directions_result = gmaps.directions((35.457871, 139.624857),
 #print("{}".format(json.dumps(directions_result,indent=4)))
 
 #print(directions_result[0]["legs"][0]["steps"][0]["distance"]["value"])
+
+#polyline decode
+print(dc.decode_polyline(directions_result[0]["legs"][0]["steps"][0]["polyline"]["points"]))
 
 f = open('direction.json', 'w')
 json.dump(directions_result, f)

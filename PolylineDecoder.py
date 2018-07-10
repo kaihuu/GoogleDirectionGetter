@@ -18,10 +18,7 @@ def decode_polyline(polyline_str):
                 shift += 5
                 if not byte >= 0x20:
                     break
-            print(result)
-            print()
-            print(result & 1)
-            print()
+
             if (result & 1):
                 changes[unit] = ~(result >> 1)
             else:

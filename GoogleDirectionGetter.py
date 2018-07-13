@@ -2,8 +2,10 @@ import googlemaps
 from datetime import datetime
 import json
 import PolylineDecoder as dc
+import os
 
-gmaps = googlemaps.Client(key='AIzaSyAtNbR9t2Dxv87jpBHpWoaEZdvmmUmlf_A')
+api_key = os.environ["GOOGLE_MAP_API_KEY"]
+gmaps = googlemaps.Client(key=api_key)
 
 # Geocoding an address
 #geocode_result = gmaps.geocode('1600 Amphitheatre Parkway, Mountain View, CA')
@@ -16,7 +18,10 @@ now = datetime.now()
 directions_result = gmaps.directions((35.457871, 139.624857),
                                      "川崎駅",
                                      mode="driving",
-                                     departure_time=now)
+                                     departure_time=now,
+                                     waypoints="via:横須賀駅",
+                                     )
+
 
 #print("{}".format(json.dumps(directions_result,indent=4)))
 
@@ -25,5 +30,22 @@ directions_result = gmaps.directions((35.457871, 139.624857),
 #polyline decode
 print(dc.decode_polyline(directions_result[0]["legs"][0]["steps"][0]["polyline"]["points"]))
 
-f = open('direction.json', 'w')
+f = open('direction1.json', 'w')
+json.dump(directions_result, f)
+
+
+directions_result = gmaps.directions((35.4552092, 139.6276392),
+                                     (35.5030188, 139.6996775),
+                                     mode="driving",
+                                     departure_time=now
+                                     )
+
+#print("{}".format(json.dumps(directions_result,indent=4)))
+
+#print(directions_result[0]["legs"][0]["steps"][0]["distance"]["value"])
+
+#polyline decode
+print(dc.decode_polyline(directions_result[0]["legs"][0]["steps"][0]["polyline"]["points"]))
+
+f = open('direction2.json', 'w')
 json.dump(directions_result, f)

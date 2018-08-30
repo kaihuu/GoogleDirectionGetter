@@ -15,6 +15,18 @@ class DBAccessor:
         cnn.close()
         return rows
 
-    def QueryString():
-        query
+    def QueryString(self):
+        query = " "
         return query  
+
+    def ExecuteManyInsert(self, query, dataList):
+        cnn = pyodbc.connect(self.config)
+        cur = cnn.cursor()
+        cur.executemany(query, dataList)
+        cur.commit()
+        cur.close()
+        cnn.close()
+
+    def QueryInsertString(self):
+        query = "INSERT INTO GOOGLE_DISTANCE_MATRIX VALUES (?, ?, ?, ?, ?, ?, ?)"
+        return query

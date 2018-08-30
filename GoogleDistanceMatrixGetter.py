@@ -26,12 +26,18 @@ def schedule(interval, f, wait=False):
         time.sleep(next_time)
 
 def Inserter():
-    print(datetime.now())
+    now= datetime.now()
+    print(now)
+
+    semanticLinkGetter()
+    #getMatrix(now, )
+
+    #インサート処理
 
 
 def getMatrix(now, startLatitude, startLongitude, endLatitude, endLongitude):
-    matrix_result = gmaps.distance_matrix([startLatitude, startLongitude],
-                                        [endLatitude, endLongitude],
+    matrix_result = gmaps.distance_matrix((startLatitude, startLongitude),
+                                        (endLatitude, endLongitude),
                                         mode="driving",
                                         traffic_model = "best_guess",
                                         departure_time=now
@@ -39,12 +45,34 @@ def getMatrix(now, startLatitude, startLongitude, endLatitude, endLongitude):
 
     return matrix_result
 
-#DBアクセス
+def parseDistanceMatrix(matrix):
+    return 0
+
+def semanticLinkGetter():
+    return 0
 
 #API前準備
 api_key = os.environ["GOOGLE_MAP_API_KEY"]
 gmaps = googlemaps.Client(key=api_key)
 
+now = datetime.now()
+
+matrix = getMatrix(now, "35.468656", "139.618803", "35.531355", "139.699012")
+
+#print(matrix["rows"][0]["elements"][0]["distance"]["value"])
+
+list = []
+
+data = (matrix["destination_addresses"][0],
+        matrix["origin_addresses"][0],
+        matrix["rows"][0]["elements"][0]["distance"]["value"], 
+        matrix["rows"][0]["elements"][0]["duration"]["value"],
+        matrix["rows"][0]["elements"][0]["duration_in_traffic"]["value"])
+
+list.append(data)
+#list.append(data)
+print(list)
+
 #distance matrix呼び出しRequest処理,JSONパース、DBインサート
-schedule(3600, Inserter)
+#schedule(3600, Inserter)
 

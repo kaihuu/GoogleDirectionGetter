@@ -6,15 +6,16 @@ import os
 import time
 import threading
 import sched
+from DBAccessor import DBAccessor as dbac
 
-def schedule(interval, f, wait=False):
+def schedule(interval, f, wait=True):
     minterval = 1
     while True:
         now = time.time()
         nowd = datetime.now()
         if nowd.minute == 0 and nowd.second == 0:
             break
-        next_time = ((now - time.time()) % minterval) or minterval
+        next_time = minterval - ((time.time() - now) % minterval)
         time.sleep(next_time)
 
     base_time = time.time()
@@ -22,16 +23,32 @@ def schedule(interval, f, wait=False):
     while True:
         t = threading.Thread(target=f)
         t.start()
-        next_time = ((base_time - time.time()) % interval) or interval
+        next_time = interval - ((time.time() - base_time) % interval)
         time.sleep(next_time)
+        
+        while True:
+            now = time.time()
+            nowd = datetime.now()
+            if nowd.minute == 0 and nowd.second == 0:
+                break
+            next_time = ((now - time.time()) % minterval) or minterval
+            time.sleep(next_time)
 
 def Inserter():
     now= datetime.now()
     print(now)
 
-    semanticLinkGetter()
-    #getMatrix(now, )
+    datalist = []
 
+    semanticlinks = semanticLinkGetter()
+
+    matrix = getMatrix(now, str(semanticlinks[1][2]), str(semanticlinks[1][3]),
+     str(semanticlinks[0][2]), str(semanticlinks[0][3]))
+    parseDistanceMatrix(matrix, datalist, now, semanticlinks[1][2], semanticlinks[1][3],
+     semanticlinks[0][2], semanticlinks[0][3], semanticlinks[0][0])
+    #print(datalist)
+
+    dbac.ExecuteManyInsert(dbac.QueryInsertString(), datalist)
     #インサート処理
 
 
@@ -45,34 +62,26 @@ def getMatrix(now, startLatitude, startLongitude, endLatitude, endLongitude):
 
     return matrix_result
 
-def parseDistanceMatrix(matrix):
-    return 0
+def parseDistanceMatrix(matrix, list, now, startLatitude, startLongitude, endLatitude, endLongitude, semanticLinkID):
+    data = (semanticLinkID, now, endLatitude, endLongitude,
+            startLatitude, startLongitude,
+            matrix["rows"][0]["elements"][0]["distance"]["value"], 
+            matrix["rows"][0]["elements"][0]["duration"]["value"],
+            matrix["rows"][0]["elements"][0]["duration_in_traffic"]["value"])
+    list.append(data)
+    return list
 
 def semanticLinkGetter():
-    return 0
+    semanticlinks = dbac.ExecuteQuery(dbac.QueryString())
+    return semanticlinks
 
 #API前準備
 api_key = os.environ["GOOGLE_MAP_API_KEY"]
 gmaps = googlemaps.Client(key=api_key)
 
-now = datetime.now()
 
-matrix = getMatrix(now, "35.468656", "139.618803", "35.531355", "139.699012")
-
-#print(matrix["rows"][0]["elements"][0]["distance"]["value"])
-
-list = []
-
-data = (matrix["destination_addresses"][0],
-        matrix["origin_addresses"][0],
-        matrix["rows"][0]["elements"][0]["distance"]["value"], 
-        matrix["rows"][0]["elements"][0]["duration"]["value"],
-        matrix["rows"][0]["elements"][0]["duration_in_traffic"]["value"])
-
-list.append(data)
-#list.append(data)
-print(list)
+#Inserter()
 
 #distance matrix呼び出しRequest処理,JSONパース、DBインサート
-#schedule(3600, Inserter)
+schedule(3600, Inserter)
 

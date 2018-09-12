@@ -15,10 +15,19 @@ class DBAccessor:
         cnn.close()
         return rows
 
+    @classmethod
     def QueryString(self):
-        query = " "
-        return query  
+        query = """
+        SELECT SEMANTIC_LINK_ID, ENDPOINTS_OF_SEMANTIC_LINKS.DIRECTION, 
+		CASE WHEN ENDPOINTS_OF_SEMANTIC_LINKS.LATITUDE IS NULL THEN LINKS.LATITUDE ELSE ENDPOINTS_OF_SEMANTIC_LINKS.LATITUDE END, 
+		CASE WHEN ENDPOINTS_OF_SEMANTIC_LINKS.LONGITUDE IS NULL THEN LINKS.LONGITUDE ELSE ENDPOINTS_OF_SEMANTIC_LINKS.LONGITUDE END
+        FROM ENDPOINTS_OF_SEMANTIC_LINKS, LINKS
+        WHERE ENDPOINTS_OF_SEMANTIC_LINKS.NODE_ID = LINKS.NODE_ID AND ENDPOINTS_OF_SEMANTIC_LINKS.LINK_ID = LINKS.LINK_ID
+        ORDER BY DIRECTION
+        """
+        return query 
 
+    @classmethod
     def ExecuteManyInsert(self, query, dataList):
         cnn = pyodbc.connect(self.config)
         cur = cnn.cursor()
@@ -27,6 +36,7 @@ class DBAccessor:
         cur.close()
         cnn.close()
 
+    @classmethod
     def QueryInsertString(self):
-        query = "INSERT INTO GOOGLE_DISTANCE_MATRIX VALUES (?, ?, ?, ?, ?, ?, ?)"
+        query = "INSERT INTO GOOGLE_DISTANCE_MATRIX VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
         return query

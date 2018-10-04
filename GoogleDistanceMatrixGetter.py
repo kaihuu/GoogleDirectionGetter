@@ -18,9 +18,10 @@ def schedule(interval, f, wait=True):
         next_time = minterval - ((time.time() - now) % minterval)
         time.sleep(next_time)
 
-    base_time = time.time()
+    
     next_time = 0
     while True:
+        base_time = time.time()
         t = threading.Thread(target=f)
         t.start()
         next_time = interval - ((time.time() - base_time) % interval)
@@ -31,7 +32,7 @@ def schedule(interval, f, wait=True):
             nowd = datetime.now()
             if nowd.minute == 0 and nowd.second == 0:
                 break
-            next_time = ((now - time.time()) % minterval) or minterval
+            next_time = minterval - ((time.time() - now) % minterval)
             time.sleep(next_time)
 
 def Inserter():
